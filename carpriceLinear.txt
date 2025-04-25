@@ -1,0 +1,53 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split as TTS
+from sklearn.preprocessing import StandardScaler as SS, LabelEncoder as LE
+from sklearn.linear_model import LinearRegression as LR
+from sklearn.metrics import r2_score as R2, mean_squared_error as MSE
+
+data = pd.read_csv('used_cars_dataset.csv')
+
+print(data.head(10))
+data.dropna(inplace=True)
+
+
+
+
+X = data.iloc[:,:-1]
+y = data.iloc[:,-1]
+
+#print(X.head(10))
+print(X)
+
+X = pd.get_dummies(X, drop_first=True)
+print(X.head(4))
+
+
+
+
+
+X_train, X_test, y_train, y_test = TTS(X, y, test_size=0.2, random_state=42)
+
+model = LR()
+model.fit(X_train, y_train)
+
+
+
+
+
+y_pred = model.predict(X_test)
+
+r2 = R2(y_test, y_pred)
+mse = MSE(y_test, y_pred)
+
+print(f"R2: {r2:.4f}, MSE: {mse:.4f}")
+
+
+
+
+
+plt.style.use('dark_background')
+plt.figure(figsize=(6,5))
+plt.scatter(y_test, y_pred, color='red', alpha=0.6)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='green', linestyle='--')
+plt.show()

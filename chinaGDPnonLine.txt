@@ -1,0 +1,46 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import r2_score as R2
+from scipy.optimize import curve_fit
+
+data = pd.read_csv('china_gdp.csv')
+print(data.head())
+
+
+
+
+
+data.dropna(inplace=True)
+X = data['Year'].values
+y = data['Value'].values
+
+y_max = np.max(y)
+y = y / y_max
+
+def logistic_fun(x, a, b, c):
+    return c / (1 + np.exp(-a * (x - b)))
+
+init_guess = [0.1, 2000, 1]
+
+popt, _ = curve_fit(logistic_fun, X, y, p0=init_guess, maxfev=50000)
+
+a_opt, b_opt, c_opt = popt
+
+y_pred = logistic_fun(X, a_opt, b_opt, c_opt)
+
+y_pred *= y_max
+r2 = R2(data['Value'], y_pred)
+print(f"R2 Score: {r2:.4f}")
+
+
+
+
+
+plt.style.use('dark_background')
+plt.figure(figsize=(8,5))
+plt.scatter(data['Year'], data['Value'], color='cyan', alpha=0.6)
+plt.plot(data['Year'], y_pred, color='orangered', alpha=1)
+plt.xlabel('Year')
+plt.ylabel('GDP')
+plt.show()

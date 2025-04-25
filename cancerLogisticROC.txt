@@ -1,0 +1,70 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split as TTS
+from sklearn.linear_model import LogisticRegression as LR
+from sklearn.metrics import confusion_matrix as CM, r2_score as R2, precision_score as PS, recall_score as RS, f1_score as F1, accuracy_score as AS, roc_curve, auc, classification_report as CR
+
+data = pd.read_csv('samples_cancer.csv')
+print(data.head())
+print(data.dtypes)
+
+
+
+data.drop(columns=['ID'], inplace=True)
+data['BareNuc'] = pd.to_numeric(data['BareNuc'], errors='coerce')
+print(data.head())
+print(data.dtypes)
+
+
+
+data.dropna(inplace=True)
+X = data.iloc[:,:-1]
+y = data['Class'].map({2: 0, 4: 1})
+
+X_train, X_test, y_train, y_test = TTS(X, y, test_size=0.2, random_state=42)
+
+model = LR()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+y_prob = model.predict_proba(X_test)[:,1]
+
+r2 = R2(y_test, y_pred)
+prec = PS(y_test, y_pred)
+recall = RS(y_test, y_pred)
+acc = AS(y_test, y_pred)
+f1 = F1(y_test, y_pred)
+print(f"R2: {r2:.4f}, Precision: {prec:.4f}, Recall: {recall:.4f}, Accuracy: {acc:.4f}, F1: {f1:.4f}")
+print("Classification Report:\n", CR(y_test, y_pred))
+
+
+
+
+
+
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+roc_auc = auc(fpr, tpr)
+print(f"AUC: {roc_auc:.4f}")
+cm = CM(y_test, y_pred)
+plt.style.use('dark_background')
+plt.figure(figsize=(8,6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Reds', xticklabels=['Benign', 'Malignant'], yticklabels=['Benign', 'Malignant'])
+plt.xlabel("Actual")
+plt.ylabel('Predicted')
+plt.title("Confusion Matrix")
+plt.show()
+
+
+
+
+
+
+plt.figure(figsize=(6,4))
+plt.plot(fpr, tpr, color='cyan', label=f'ROC AUC: {roc_auc:.4f}')
+plt.plot([0,1], [0,1], color='orangered', ls='-.')
+plt.xlabel('False Positive')
+plt.ylabel('False Niggative')
+plt.legend()
+plt.show()

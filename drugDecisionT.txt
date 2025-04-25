@@ -1,0 +1,48 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.tree import DecisionTreeClassifier as DTC
+from sklearn import tree
+from sklearn.metrics import accuracy_score as AS, classification_report as CR
+from sklearn.model_selection import train_test_split as TTS
+from sklearn.preprocessing import LabelEncoder as LE
+
+data = pd.read_csv('drug.csv')
+print(data.head())
+print(data.dtypes)
+
+
+
+
+
+data.dropna(inplace=True)
+#dataC = pd.get_dummies(data[['Sex', 'BP', 'Cholesterol']])
+print(dataC.head())
+le_sex = LE()
+le_bp = LE()
+le_chol = LE()
+
+data['Sex'] = le_sex.fit_transform(data['Sex'])
+data['BP'] = le_bp.fit_transform(data['BP'])
+data['Cholesterol'] = le_chol.fit_transform(data['Cholesterol'])
+X = data.iloc[:,:-1]
+y = data['Drug']
+
+X_train, X_test, y_train, y_test = TTS(X, y, test_size=0.2, random_state=42)
+
+model = DTC(criterion='entropy',random_state=42)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+acc = AS(y_test, y_pred)
+print(f"Accuracy: {acc:.4f}")
+print("Classification Report:\n", CR(y_test, y_pred))
+
+
+
+
+
+
+plt.figure(figsize=(8,5))
+tree.plot_tree(model, feature_names=X.columns, class_names=model.classes_, filled=True)
+plt.title('Decision Tree For Drug Prediciton')
+plt.show()

@@ -1,0 +1,40 @@
+import pandas as pd
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier as KNN
+from sklearn.model_selection import train_test_split as TTS
+from sklearn.metrics import r2_score as R2, mean_squared_error as MSE, accuracy_score as AS
+from sklearn.preprocessing import StandardScaler as SS
+import matplotlib.pyplot as plt
+
+data = pd.read_csv('teleCust.csv')
+print(data.head(10))
+print(data.dtypes)
+
+data.dropna(inplace=True)
+
+
+
+
+X = data.iloc[:,:-1]
+y = data['custcat']
+
+scaler = SS()
+X_scaled = scaler.fit_transform(X)
+print(X_scaled)
+
+
+
+
+
+X_train, X_test, y_train, y_test = TTS(X_scaled, y, test_size=0.2, random_state=42)
+
+k = 10
+knn = KNN(n_neighbors=k)
+knn.fit(X_train, y_train)
+
+y_pred = knn.predict(X_test)
+
+mse = MSE(y_test, y_pred)
+acc = AS(y_test, y_pred)
+
+print(f"MSE: {mse:.4f}, Accuracy: {acc:.4f}")

@@ -1,0 +1,60 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
+from sklearn.metrics import accuracy_score, f1_score, classification_report
+
+columns = [
+    "Pregnancies", "Glucose", "BloodPressure", "SkinThickness", 
+    "Insulin", "BMI", "DiabetesPedigreeFunction", "Age", "Outcome"
+]
+
+df = pd.read_csv("pima-indians-diabetes.data.csv", header=None, names=columns)
+
+print(df.head())
+print(df.info())
+
+
+
+
+
+X = df.drop("Outcome", axis=1)
+y = df["Outcome"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+gnb = GaussianNB()
+gnb.fit(X_train, y_train)
+
+
+
+
+
+y_pred_gnb = gnb.predict(X_test)
+
+accuracy_gnb = accuracy_score(y_test, y_pred_gnb)
+f1_gnb = f1_score(y_test, y_pred_gnb)
+
+print("Gaussian Naive Bayes")
+print(f"Accuracy: {accuracy_gnb:.4f}")
+print(f"F1 Score: {f1_gnb:.4f}")
+print(classification_report(y_test, y_pred_gnb))
+
+
+
+
+
+
+#---------Optional------delete this if not needed-----
+# # optional
+# # Multinomial Naive Bayes (not typically used for this kind of data)
+# mnb = MultinomialNB()
+# mnb.fit(X_train, y_train)
+# y_pred_mnb = mnb.predict(X_test)
+
+# accuracy_mnb = accuracy_score(y_test, y_pred_mnb)
+# f1_mnb = f1_score(y_test, y_pred_mnb)
+
+# print("Multinomial Naive Bayes")
+# print(f"Accuracy: {accuracy_mnb:.4f}")
+# print(f"F1 Score: {f1_mnb:.4f}")
+# print(classification_report(y_test, y_pred_mnb))
